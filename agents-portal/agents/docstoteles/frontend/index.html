@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docstoteles AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0a0e1a',
+                        'navy-medium': '#1a1f35',
+                        'navy-light': '#2a2f45',
+                        'cyan-neon': '#00d4ff',
+                        'blue-neon': '#0066ff',
+                        'purple-neon': '#8b5cf6',
+                        'green-neon': '#10b981',
+                        'orange-neon': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-white min-h-screen">
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function DocstotelesAgent() {
+            const [activeTab, setActiveTab] = useState('upload');
+            const [documents, setDocuments] = useState([]);
+            const [query, setQuery] = useState('');
+            const [answer, setAnswer] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [webUrl, setWebUrl] = useState('');
+
+            const uploadDocument = async (file) => {
+                setLoading(true);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const response = await fetch('http://localhost:8501/documents/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadDocuments();
+                        alert('Documento carregado com sucesso!');
+                    } else {
+                        alert('Erro ao carregar documento: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao carregar documento: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const scrapeWebContent = async () => {
+                if (!webUrl) return;
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8501/documents/scrape', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: webUrl })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadDocuments();
+                        setWebUrl('');
+                        alert('Conteúdo web extraído com sucesso!');
+                    } else {
+                        alert('Erro ao extrair conteúdo: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao extrair conteúdo: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const queryDocuments = async () => {
+                if (!query.trim()) return;
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8501/query', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        setAnswer(result.answer);
+                    } else {
+                        alert('Erro ao consultar documentos: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao consultar documentos: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const loadDocuments = async () => {
+                try {
+                    const response = await fetch('http://localhost:8501/documents');
+                    const result = await response.json();
+                    setDocuments(result.documents || []);
+                } catch (error) {
+                    console.error('Erro ao carregar documentos:', error);
+                }
+            };
+
+            useEffect(() => {
+                loadDocuments();
+            }, []);
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-neon to-pink-500 bg-clip-text text-transparent mb-4">
+                            📄 Docstoteles AI Assistant
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Assistente de documentação com RAG e web scraping avançado
+                        </p>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-4 mb-6">
+                        <button
+                            onClick={() => setActiveTab('upload')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'upload' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📁 Upload Documentos
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('scrape')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'scrape' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            🌐 Web Scraping
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('query')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'query' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            🔍 Consultar Base
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('documents')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'documents' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📚 Documentos
+                        </button>
+                    </div>
+
+                    {/* Upload Tab */}
+                    {activeTab === 'upload' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Upload de Documentos</h2>
+                            <div className="border-2 border-dashed border-navy-light rounded-lg p-8 text-center">
+                                <input
+                                    type="file"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) uploadDocument(file);
+                                    }}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label
+                                    htmlFor="file-upload"
+                                    className="cursor-pointer flex flex-col items-center"
+                                >
+                                    <span className="text-6xl mb-4">📄</span>
+                                    <span className="text-xl mb-2">Clique para fazer upload</span>
+                                    <span className="text-gray-400">ou arraste o arquivo aqui</span>
+                                </label>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Web Scraping Tab */}
+                    {activeTab === 'scrape' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Web Scraping</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">URL para extrair:</label>
+                                    <input
+                                        type="url"
+                                        value={webUrl}
+                                        onChange={(e) => setWebUrl(e.target.value)}
+                                        placeholder="https://example.com"
+                                        className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-purple-neon focus:ring-1 focus:ring-purple-neon/50"
+                                    />
+                                </div>
+                                <button
+                                    onClick={scrapeWebContent}
+                                    disabled={loading || !webUrl}
+                                    className="px-6 py-3 bg-gradient-to-r from-purple-neon to-pink-500 rounded-lg hover:from-purple-neon/80 hover:to-pink-500/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Extraindo...' : '🌐 Extrair Conteúdo'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Query Tab */}
+                    {activeTab === 'query' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Consultar Base de Conhecimento</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Sua pergunta:</label>
+                                    <textarea
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="Digite sua pergunta aqui..."
+                                        rows={4}
+                                        className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-purple-neon focus:ring-1 focus:ring-purple-neon/50"
+                                    />
+                                </div>
+                                <button
+                                    onClick={queryDocuments}
+                                    disabled={loading || !query.trim()}
+                                    className="px-6 py-3 bg-gradient-to-r from-purple-neon to-pink-500 rounded-lg hover:from-purple-neon/80 hover:to-pink-500/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Consultando...' : '🔍 Consultar'}
+                                </button>
+                                
+                                {answer && (
+                                    <div className="mt-6 p-4 bg-green-neon/10 border border-green-neon/30 rounded-lg">
+                                        <h3 className="font-semibold text-green-neon mb-2">Resposta:</h3>
+                                        <p className="text-gray-200 whitespace-pre-wrap">{answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Documents Tab */}
+                    {activeTab === 'documents' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Documentos na Base ({documents.length})</h2>
+                            <div className="space-y-4">
+                                {documents.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-400">
+                                        <span className="text-6xl block mb-4">📚</span>
+                                        <p>Nenhum documento encontrado</p>
+                                        <p className="text-sm">Faça upload de documentos ou extraia conteúdo web</p>
+                                    </div>
+                                ) : (
+                                    documents.map((doc) => (
+                                        <div key={doc.id} className="bg-navy-dark rounded-lg p-4 border border-navy-light">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h3 className="font-semibold text-lg">{doc.title}</h3>
+                                                    <p className="text-sm text-gray-400 mt-1">
+                                                        {doc.source_type} • {new Date(doc.created_at).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                    {doc.url && (
+                                                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-purple-neon text-sm hover:underline">
+                                                            {doc.url}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                                <span className="text-xs bg-purple-neon/20 text-purple-neon px-2 py-1 rounded">
+                                                    {doc.content.length} chars
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-300 mt-2 text-sm line-clamp-2">
+                                                {doc.content.substring(0, 200)}...
+                                            </p>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<DocstotelesAgent />, document.getElementById('root'));
+    </script>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</body>
+</html>

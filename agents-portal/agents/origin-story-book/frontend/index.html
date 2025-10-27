@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Origin Story Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0a0e1a',
+                        'navy-medium': '#1a1f35',
+                        'navy-light': '#2a2f45',
+                        'cyan-neon': '#00d4ff',
+                        'blue-neon': '#0066ff',
+                        'purple-neon': '#8b5cf6',
+                        'green-neon': '#10b981',
+                        'orange-neon': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-white min-h-screen">
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function OriginStoryBookAgent() {
+            const [activeTab, setActiveTab] = useState('generate');
+            const [stories, setStories] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [storyTypes, setStoryTypes] = useState([]);
+            
+            // Form state
+            const [formData, setFormData] = useState({
+                character_name: '',
+                character_description: '',
+                world_setting: '',
+                story_type: 'hero',
+                tone: 'epic',
+                length: 'medium',
+                additional_details: ''
+            });
+
+            const generateStory = async () => {
+                if (!formData.character_name || !formData.character_description || !formData.world_setting) {
+                    alert('Preencha pelo menos nome, descrição do personagem e mundo');
+                    return;
+                }
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:3001/stories/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadStories();
+                        alert('História gerada com sucesso!');
+                        // Reset form
+                        setFormData({
+                            character_name: '',
+                            character_description: '',
+                            world_setting: '',
+                            story_type: 'hero',
+                            tone: 'epic',
+                            length: 'medium',
+                            additional_details: ''
+                        });
+                    } else {
+                        alert('Erro ao gerar história: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao gerar história: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const loadStories = async () => {
+                try {
+                    const response = await fetch('http://localhost:3001/stories');
+                    const result = await response.json();
+                    setStories(result.stories || []);
+                } catch (error) {
+                    console.error('Erro ao carregar histórias:', error);
+                }
+            };
+
+            const loadStoryTypes = async () => {
+                try {
+                    const response = await fetch('http://localhost:3001/story-types');
+                    const result = await response.json();
+                    setStoryTypes(result);
+                } catch (error) {
+                    console.error('Erro ao carregar tipos de história:', error);
+                }
+            };
+
+            useEffect(() => {
+                loadStories();
+                loadStoryTypes();
+            }, []);
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-4">
+                            📖 Origin Story Book
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Gerador de histórias de origem com IA usando OpenAI Agents SDK
+                        </p>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-4 mb-6">
+                        <button
+                            onClick={() => setActiveTab('generate')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'generate' 
+                                    ? 'bg-orange-neon/20 text-orange-neon border border-orange-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            ✨ Gerar História
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('stories')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'stories' 
+                                    ? 'bg-orange-neon/20 text-orange-neon border border-orange-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📚 Minhas Histórias
+                        </button>
+                    </div>
+
+                    {/* Generate Tab */}
+                    {activeTab === 'generate' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-6">Criar Nova História de Origem</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Character Info */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-orange-neon">👤 Personagem</h3>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Nome do Personagem:</label>
+                                        <input
+                                            type="text"
+                                            value={formData.character_name}
+                                            onChange={(e) => setFormData({...formData, character_name: e.target.value})}
+                                            placeholder="Ex: Aria, Marcus, Luna..."
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Descrição do Personagem:</label>
+                                        <textarea
+                                            value={formData.character_description}
+                                            onChange={(e) => setFormData({...formData, character_description: e.target.value})}
+                                            placeholder="Descreva o personagem, sua personalidade, habilidades..."
+                                            rows={3}
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* World & Settings */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-orange-neon">🌍 Mundo e Configurações</h3>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Mundo/Cenário:</label>
+                                        <textarea
+                                            value={formData.world_setting}
+                                            onChange={(e) => setFormData({...formData, world_setting: e.target.value})}
+                                            placeholder="Descreva o mundo onde a história se passa..."
+                                            rows={3}
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Tipo de História:</label>
+                                            <select
+                                                value={formData.story_type}
+                                                onChange={(e) => setFormData({...formData, story_type: e.target.value})}
+                                                className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                            >
+                                                <option value="hero">Herói</option>
+                                                <option value="villain">Vilão</option>
+                                                <option value="antihero">Anti-herói</option>
+                                                <option value="mentor">Mentor</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Tom:</label>
+                                            <select
+                                                value={formData.tone}
+                                                onChange={(e) => setFormData({...formData, tone: e.target.value})}
+                                                className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                            >
+                                                <option value="epic">Épico</option>
+                                                <option value="dark">Sombrio</option>
+                                                <option value="comedic">Cômico</option>
+                                                <option value="mysterious">Misterioso</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Tamanho:</label>
+                                        <select
+                                            value={formData.length}
+                                            onChange={(e) => setFormData({...formData, length: e.target.value})}
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        >
+                                            <option value="short">Curto (1-2 páginas)</option>
+                                            <option value="medium">Médio (3-5 páginas)</option>
+                                            <option value="long">Longo (6+ páginas)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Additional Details */}
+                            <div className="mt-6">
+                                <label className="block text-sm font-medium mb-2">Detalhes Adicionais (opcional):</label>
+                                <textarea
+                                    value={formData.additional_details}
+                                    onChange={(e) => setFormData({...formData, additional_details: e.target.value})}
+                                    placeholder="Qualquer informação adicional que queira incluir na história..."
+                                    rows={3}
+                                    className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                />
+                            </div>
+
+                            {/* Generate Button */}
+                            <div className="mt-6 text-center">
+                                <button
+                                    onClick={generateStory}
+                                    disabled={loading}
+                                    className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg hover:from-amber-500/80 hover:to-orange-500/80 disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold"
+                                >
+                                    {loading ? '✨ Gerando História...' : '📖 Gerar História de Origem'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Stories Tab */}
+                    {activeTab === 'stories' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-6">Minhas Histórias ({stories.length})</h2>
+                            
+                            {stories.length === 0 ? (
+                                <div className="text-center py-12 text-gray-400">
+                                    <span className="text-6xl block mb-4">📖</span>
+                                    <p className="text-xl mb-2">Nenhuma história criada ainda</p>
+                                    <p className="text-sm">Use a aba "Gerar História" para criar sua primeira história de origem</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {stories.map((story) => (
+                                        <div key={story.story_id} className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-xl font-semibold">{story.title}</h3>
+                                                    <p className="text-sm text-gray-400 mt-1">
+                                                        {story.character_name} • {story.story_type} • {story.tone}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {new Date(story.created_at).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <span className="text-xs bg-orange-neon/20 text-orange-neon px-2 py-1 rounded">
+                                                        {story.length}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="mb-4">
+                                                <h4 className="font-semibold text-orange-neon mb-2">Temas:</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {story.themes.map((theme, index) => (
+                                                        <span key={index} className="text-xs bg-navy-light text-gray-300 px-2 py-1 rounded">
+                                                            {theme}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex space-x-4">
+                                                <button className="px-4 py-2 bg-orange-neon/20 text-orange-neon rounded-lg hover:bg-orange-neon/30 transition-colors">
+                                                    📖 Ler História
+                                                </button>
+                                                <button className="px-4 py-2 bg-blue-neon/20 text-blue-neon rounded-lg hover:bg-blue-neon/30 transition-colors">
+                                                    📊 Analisar
+                                                </button>
+                                                <button className="px-4 py-2 bg-green-neon/20 text-green-neon rounded-lg hover:bg-green-neon/30 transition-colors">
+                                                    📥 Exportar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<OriginStoryBookAgent />, document.getElementById('root'));
+    </script>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</body>
+</html>

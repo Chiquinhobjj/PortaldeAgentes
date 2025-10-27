@@ -1,0 +1,34 @@
+OPENAI_API_KEY=your_openai_api_key_here
+AI_PROVIDER=openai
+MODEL_NAME=gpt-4o-mini
+MAX_TOKENS=4000
+TEMPERATURE=0.8
+
+# Story Generation Settings
+DEFAULT_STORY_TYPE=hero
+DEFAULT_TONE=epic
+DEFAULT_LENGTH=medium
+MAX_STORY_LENGTH=10000
+
+# Character Development
+CHARACTER_DEPTH_LEVEL=high
+INCLUDE_PSYCHOLOGY=true
+INCLUDE_BACKGROUND=true
+
+# World Building
+WORLD_DETAIL_LEVEL=detailed
+INCLUDE_CULTURE=true
+INCLUDE_HISTORY=true
+
+# Story Structure
+INCLUDE_CONFLICT=true
+INCLUDE_RESOLUTION=true
+INCLUDE_CHARACTER_ARC=true
+
+# Analysis Settings
+ANALYSIS_DEPTH=comprehensive
+INCLUDE_SUGGESTIONS=true
+RATING_SYSTEM=true
+
+# CORS Settings
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:3001

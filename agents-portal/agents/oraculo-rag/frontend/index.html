@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oráculo RAG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0a0e1a',
+                        'navy-medium': '#1a1f35',
+                        'navy-light': '#2a2f45',
+                        'cyan-neon': '#00d4ff',
+                        'blue-neon': '#0066ff',
+                        'purple-neon': '#8b5cf6',
+                        'green-neon': '#10b981',
+                        'orange-neon': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-white min-h-screen">
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function OraculoRagAgent() {
+            const [activeTab, setActiveTab] = useState('upload');
+            const [documents, setDocuments] = useState([]);
+            const [query, setQuery] = useState('');
+            const [answer, setAnswer] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [stats, setStats] = useState({});
+
+            const uploadDocument = async (file) => {
+                setLoading(true);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const response = await fetch('http://localhost:8000/documents/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadDocuments();
+                        loadStats();
+                        alert('Documento processado e indexado com sucesso!');
+                    } else {
+                        alert('Erro ao processar documento: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao processar documento: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const queryDocuments = async () => {
+                if (!query.trim()) return;
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8000/query', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            query,
+                            top_k: 5,
+                            similarity_threshold: 0.7
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        setAnswer(result.answer);
+                    } else {
+                        alert('Erro ao consultar documentos: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao consultar documentos: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const loadDocuments = async () => {
+                try {
+                    const response = await fetch('http://localhost:8000/documents');
+                    const result = await response.json();
+                    setDocuments(result.documents || []);
+                } catch (error) {
+                    console.error('Erro ao carregar documentos:', error);
+                }
+            };
+
+            const loadStats = async () => {
+                try {
+                    const response = await fetch('http://localhost:8000/stats');
+                    const result = await response.json();
+                    setStats(result);
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas:', error);
+                }
+            };
+
+            useEffect(() => {
+                loadDocuments();
+                loadStats();
+            }, []);
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-green-neon to-teal-500 bg-clip-text text-transparent mb-4">
+                            🔮 Oráculo RAG
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Sistema RAG avançado com busca semântica vetorial e processamento multitarefa
+                        </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-green-neon">{stats.total_documents || 0}</div>
+                            <div className="text-sm text-gray-400">Documentos</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-blue-neon">{stats.indexed_documents || 0}</div>
+                            <div className="text-sm text-gray-400">Indexados</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-purple-neon">{stats.embedding_dimension || 0}</div>
+                            <div className="text-sm text-gray-400">Dimensões</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-orange-neon">
+                                {stats.embedding_model_loaded ? '✅' : '❌'}
+                            </div>
+                            <div className="text-sm text-gray-400">Modelo</div>
+                        </div>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-4 mb-6">
+                        <button
+                            onClick={() => setActiveTab('upload')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'upload' 
+                                    ? 'bg-green-neon/20 text-green-neon border border-green-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📁 Upload
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('query')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'query' 
+                                    ? 'bg-green-neon/20 text-green-neon border border-green-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            🔍 Consulta Semântica
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('documents')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'documents' 
+                                    ? 'bg-green-neon/20 text-green-neon border border-green-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📚 Base de Conhecimento
+                        </button>
+                    </div>
+
+                    {/* Upload Tab */}
+                    {activeTab === 'upload' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Upload com Embeddings</h2>
+                            <div className="border-2 border-dashed border-navy-light rounded-lg p-8 text-center">
+                                <input
+                                    type="file"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) uploadDocument(file);
+                                    }}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label
+                                    htmlFor="file-upload"
+                                    className="cursor-pointer flex flex-col items-center"
+                                >
+                                    <span className="text-6xl mb-4">🧠</span>
+                                    <span className="text-xl mb-2">Upload com Processamento IA</span>
+                                    <span className="text-gray-400">Documentos serão indexados semanticamente</span>
+                                </label>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Query Tab */}
+                    {activeTab === 'query' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Consulta Semântica Avançada</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Consulta semântica:</label>
+                                    <textarea
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="Digite sua pergunta para busca semântica..."
+                                        rows={4}
+                                        className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-green-neon focus:ring-1 focus:ring-green-neon/50"
+                                    />
+                                </div>
+                                <button
+                                    onClick={queryDocuments}
+                                    disabled={loading || !query.trim()}
+                                    className="px-6 py-3 bg-gradient-to-r from-green-neon to-teal-500 rounded-lg hover:from-green-neon/80 hover:to-teal-500/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Processando...' : '🔍 Busca Semântica'}
+                                </button>
+                                
+                                {answer && (
+                                    <div className="mt-6 p-4 bg-green-neon/10 border border-green-neon/30 rounded-lg">
+                                        <h3 className="font-semibold text-green-neon mb-2">Resposta Semântica:</h3>
+                                        <p className="text-gray-200 whitespace-pre-wrap">{answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Documents Tab */}
+                    {activeTab === 'documents' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Base de Conhecimento ({documents.length})</h2>
+                            <div className="space-y-4">
+                                {documents.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-400">
+                                        <span className="text-6xl block mb-4">🧠</span>
+                                        <p>Base de conhecimento vazia</p>
+                                        <p className="text-sm">Faça upload de documentos para criar embeddings</p>
+                                    </div>
+                                ) : (
+                                    documents.map((doc) => (
+                                        <div key={doc.id} className="bg-navy-dark rounded-lg p-4 border border-navy-light">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h3 className="font-semibold text-lg">{doc.title}</h3>
+                                                    <p className="text-sm text-gray-400 mt-1">
+                                                        {new Date(doc.created_at).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <span className={`text-xs px-2 py-1 rounded ${
+                                                        doc.has_embedding 
+                                                            ? 'bg-green-neon/20 text-green-neon' 
+                                                            : 'bg-gray-500/20 text-gray-400'
+                                                    }`}>
+                                                        {doc.has_embedding ? 'Indexado' : 'Pendente'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 text-sm text-gray-300">
+                                                <strong>Metadados:</strong> {JSON.stringify(doc.metadata, null, 2)}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<OraculoRagAgent />, document.getElementById('root'));
+    </script>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</body>
+</html>

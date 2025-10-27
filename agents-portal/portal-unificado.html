@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Portal - Portal Unificado de IA</title>
+    <meta name="description" content="Portal unificado de agentes de IA - como Tess AI, Adapta e Lendário">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0a0e1a',
+                        'navy-medium': '#1a1f35',
+                        'navy-light': '#2a2f45',
+                        'cyan-neon': '#00d4ff',
+                        'blue-neon': '#0066ff',
+                        'purple-neon': '#8b5cf6',
+                        'green-neon': '#10b981',
+                        'orange-neon': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-white min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Componente principal do portal
+        function AgentsPortal() {
+            const [activeAgent, setActiveAgent] = useState('dashboard');
+            const [agents, setAgents] = useState([
+                {
+                    id: 'contexto-midias',
+                    name: 'Contexto → Mídias',
+                    description: 'Transforme contexto em roteiros e apresentações profissionais',
+                    icon: '🎬',
+                    color: 'from-blue-500 to-cyan-500',
+                    category: 'Mídia & Conteúdo',
+                    status: 'online'
+                },
+                {
+                    id: 'docstoteles',
+                    name: 'Docstoteles AI',
+                    description: 'Assistente de documentação com RAG e web scraping',
+                    icon: '📄',
+                    color: 'from-purple-500 to-pink-500',
+                    category: 'Documentação & RAG',
+                    status: 'online'
+                },
+                {
+                    id: 'oraculo-rag',
+                    name: 'Oráculo RAG',
+                    description: 'Sistema RAG avançado com multitask processing',
+                    icon: '🔮',
+                    color: 'from-green-500 to-teal-500',
+                    category: 'Documentação & RAG',
+                    status: 'online'
+                },
+                {
+                    id: 'origin-story-book',
+                    name: 'Origin Story Book',
+                    description: 'Gerador de histórias de origem com IA',
+                    icon: '📖',
+                    color: 'from-amber-500 to-orange-500',
+                    category: 'Mídia & Conteúdo',
+                    status: 'online'
+                }
+            ]);
+
+            const renderAgentContent = () => {
+                switch(activeAgent) {
+                    case 'contexto-midias':
+                        return <ContextoMidiasAgent />;
+                    case 'docstoteles':
+                        return <DocstotelesAgent />;
+                    case 'oraculo-rag':
+                        return <OraculoRagAgent />;
+                    case 'origin-story-book':
+                        return <OriginStoryBookAgent />;
+                    default:
+                        return <Dashboard />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-navy-dark">
+                    {/* Header */}
+                    <header className="bg-navy-medium border-b border-navy-light">
+                        <div className="max-w-7xl mx-auto px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-neon to-blue-neon bg-clip-text text-transparent">
+                                        Agents Portal
+                                    </h1>
+                                    <span className="px-3 py-1 bg-green-neon/20 text-green-neon rounded-full text-sm font-medium">
+                                        Online
+                                    </span>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <button className="px-4 py-2 bg-navy-light hover:bg-navy-light/80 rounded-lg transition-colors">
+                                        Configurações
+                                    </button>
+                                    <div className="w-8 h-8 bg-gradient-to-r from-purple-neon to-pink-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="flex">
+                        {/* Sidebar */}
+                        <aside className="w-80 bg-navy-medium border-r border-navy-light min-h-screen">
+                            <div className="p-6">
+                                <h2 className="text-lg font-semibold mb-6 text-gray-300">Agentes Disponíveis</h2>
+                                
+                                {/* Dashboard */}
+                                <button
+                                    onClick={() => setActiveAgent('dashboard')}
+                                    className={`w-full flex items-center space-x-3 p-3 rounded-lg mb-2 transition-colors ${
+                                        activeAgent === 'dashboard' 
+                                            ? 'bg-blue-neon/20 text-blue-neon border border-blue-neon/30' 
+                                            : 'hover:bg-navy-light/50'
+                                    }`}
+                                >
+                                    <span className="text-xl">🏠</span>
+                                    <div className="text-left">
+                                        <div className="font-medium">Dashboard</div>
+                                        <div className="text-sm text-gray-400">Visão geral</div>
+                                    </div>
+                                </button>
+
+                                {/* Agentes */}
+                                {agents.map(agent => (
+                                    <button
+                                        key={agent.id}
+                                        onClick={() => setActiveAgent(agent.id)}
+                                        className={`w-full flex items-center space-x-3 p-3 rounded-lg mb-2 transition-colors ${
+                                            activeAgent === agent.id 
+                                                ? 'bg-blue-neon/20 text-blue-neon border border-blue-neon/30' 
+                                                : 'hover:bg-navy-light/50'
+                                        }`}
+                                    >
+                                        <span className="text-xl">{agent.icon}</span>
+                                        <div className="text-left flex-1">
+                                            <div className="font-medium">{agent.name}</div>
+                                            <div className="text-sm text-gray-400">{agent.description}</div>
+                                            <div className="flex items-center space-x-2 mt-1">
+                                                <span className={`w-2 h-2 rounded-full ${
+                                                    agent.status === 'online' ? 'bg-green-neon' : 'bg-gray-500'
+                                                }`}></span>
+                                                <span className="text-xs text-gray-500">{agent.category}</span>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </aside>
+
+                        {/* Main Content */}
+                        <main className="flex-1 p-6">
+                            {renderAgentContent()}
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente Dashboard
+        function Dashboard() {
+            return (
+                <div className="max-w-6xl mx-auto">
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold mb-4">Bem-vindo ao Agents Portal</h1>
+                        <p className="text-gray-300 text-lg">
+                            Portal unificado de agentes de IA - como Tess AI, Adapta e Lendário
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                                    <span className="text-white font-bold">4</span>
+                                </div>
+                                <span className="text-green-neon text-sm font-medium">Online</span>
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">Agentes Ativos</h3>
+                            <p className="text-gray-400 text-sm">Todos os agentes funcionando</p>
+                        </div>
+
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                                    <span className="text-white font-bold">2</span>
+                                </div>
+                                <span className="text-blue-neon text-sm font-medium">Categorias</span>
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">Categorias</h3>
+                            <p className="text-gray-400 text-sm">Mídia & Conteúdo, RAG</p>
+                        </div>
+
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                    <span className="text-white font-bold">∞</span>
+                                </div>
+                                <span className="text-cyan-neon text-sm font-medium">Ilimitado</span>
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">Uso</h3>
+                            <p className="text-gray-400 text-sm">Sem limites de uso</p>
+                        </div>
+
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                                    <span className="text-white font-bold">24/7</span>
+                                </div>
+                                <span className="text-orange-neon text-sm font-medium">Disponível</span>
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">Disponibilidade</h3>
+                            <p className="text-gray-400 text-sm">Sempre online</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-blue-neon/10 to-cyan-neon/10 rounded-xl p-8 border border-blue-neon/20">
+                        <h2 className="text-2xl font-bold mb-4">🚀 Como usar o Portal</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="text-center">
+                                <div className="w-16 h-16 bg-blue-neon/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-2xl">1️⃣</span>
+                                </div>
+                                <h3 className="font-semibold mb-2">Escolha um Agente</h3>
+                                <p className="text-gray-400 text-sm">Selecione o agente na barra lateral</p>
+                            </div>
+                            <div className="text-center">
+                                <div className="w-16 h-16 bg-purple-neon/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-2xl">2️⃣</span>
+                                </div>
+                                <h3 className="font-semibold mb-2">Configure sua Tarefa</h3>
+                                <p className="text-gray-400 text-sm">Defina parâmetros e entrada</p>
+                            </div>
+                            <div className="text-center">
+                                <div className="w-16 h-16 bg-green-neon/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-2xl">3️⃣</span>
+                                </div>
+                                <h3 className="font-semibold mb-2">Execute e Obtenha Resultados</h3>
+                                <p className="text-gray-400 text-sm">Veja os resultados em tempo real</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente Contexto → Mídias
+        function ContextoMidiasAgent() {
+            const [step, setStep] = useState(1);
+            const [inputText, setInputText] = useState('');
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [result, setResult] = useState('');
+
+            const handleGenerate = async () => {
+                setIsGenerating(true);
+                // Simular geração
+                setTimeout(() => {
+                    setResult(`Roteiro gerado baseado em: "${inputText}"\n\n1. Introdução\n2. Desenvolvimento\n3. Conclusão`);
+                    setIsGenerating(false);
+                    setStep(3);
+                }, 2000);
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <div className="mb-8">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <span className="text-3xl">🎬</span>
+                            <div>
+                                <h1 className="text-3xl font-bold">Contexto → Mídias</h1>
+                                <p className="text-gray-300">Transforme contexto em roteiros e apresentações profissionais</p>
+                            </div>
+                        </div>
+                        
+                        {/* Progress Steps */}
+                        <div className="flex items-center space-x-4 mb-8">
+                            {[1, 2, 3].map((stepNum) => (
+                                <div key={stepNum} className="flex items-center">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                        step >= stepNum ? 'bg-blue-neon text-white' : 'bg-navy-light text-gray-400'
+                                    }`}>
+                                        {stepNum}
+                                    </div>
+                                    {stepNum < 3 && (
+                                        <div className={`w-16 h-1 mx-2 ${
+                                            step > stepNum ? 'bg-blue-neon' : 'bg-navy-light'
+                                        }`}></div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {step === 1 && (
+                        <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                            <h2 className="text-xl font-semibold mb-6">1. Insira seu Contexto</h2>
+                            <textarea
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                placeholder="Descreva o contexto, tema ou ideia que você quer transformar em conteúdo..."
+                                className="w-full h-40 p-4 bg-navy-dark border border-navy-light rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-neon resize-none"
+                            />
+                            <button
+                                onClick={() => setStep(2)}
+                                disabled={!inputText.trim()}
+                                className="mt-6 px-6 py-3 bg-blue-neon hover:bg-blue-neon/80 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                            >
+                                Continuar
+                            </button>
+                        </div>
+                    )}
+
+                    {step === 2 && (
+                        <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                            <h2 className="text-xl font-semibold mb-6">2. Configure a Saída</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Tipo de Conteúdo</label>
+                                    <select className="w-full p-3 bg-navy-dark border border-navy-light rounded-lg text-white focus:outline-none focus:border-blue-neon">
+                                        <option>Roteiro de Vídeo</option>
+                                        <option>Apresentação</option>
+                                        <option>Post para Redes Sociais</option>
+                                        <option>Artigo de Blog</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Tom de Voz</label>
+                                    <select className="w-full p-3 bg-navy-dark border border-navy-light rounded-lg text-white focus:outline-none focus:border-blue-neon">
+                                        <option>Profissional</option>
+                                        <option>Casual</option>
+                                        <option>Informativo</option>
+                                        <option>Criativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex space-x-4 mt-6">
+                                <button
+                                    onClick={() => setStep(1)}
+                                    className="px-6 py-3 bg-navy-light hover:bg-navy-light/80 rounded-lg font-medium transition-colors"
+                                >
+                                    Voltar
+                                </button>
+                                <button
+                                    onClick={handleGenerate}
+                                    className="px-6 py-3 bg-blue-neon hover:bg-blue-neon/80 rounded-lg font-medium transition-colors"
+                                >
+                                    Gerar Conteúdo
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 3 && (
+                        <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                            <h2 className="text-xl font-semibold mb-6">3. Resultado Gerado</h2>
+                            <div className="bg-navy-dark rounded-lg p-6 mb-6">
+                                <pre className="whitespace-pre-wrap text-gray-300">{result}</pre>
+                            </div>
+                            <div className="flex space-x-4">
+                                <button
+                                    onClick={() => {
+                                        setStep(1);
+                                        setInputText('');
+                                        setResult('');
+                                    }}
+                                    className="px-6 py-3 bg-navy-light hover:bg-navy-light/80 rounded-lg font-medium transition-colors"
+                                >
+                                    Nova Geração
+                                </button>
+                                <button className="px-6 py-3 bg-green-neon hover:bg-green-neon/80 rounded-lg font-medium transition-colors">
+                                    Baixar PDF
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {isGenerating && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                            <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                                <div className="flex items-center space-x-4">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-neon"></div>
+                                    <span className="text-lg">Gerando conteúdo...</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Componente Docstoteles AI
+        function DocstotelesAgent() {
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <div className="mb-8">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <span className="text-3xl">📄</span>
+                            <div>
+                                <h1 className="text-3xl font-bold">Docstoteles AI</h1>
+                                <p className="text-gray-300">Assistente de documentação com RAG e web scraping</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                        <h2 className="text-xl font-semibold mb-6">Upload de Documentos</h2>
+                        <div className="border-2 border-dashed border-navy-light rounded-lg p-12 text-center">
+                            <span className="text-6xl mb-4 block">📁</span>
+                            <p className="text-gray-400 mb-4">Arraste arquivos aqui ou clique para selecionar</p>
+                            <button className="px-6 py-3 bg-blue-neon hover:bg-blue-neon/80 rounded-lg font-medium transition-colors">
+                                Selecionar Arquivos
+                            </button>
+                        </div>
+                        
+                        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">📄 PDF</h3>
+                                <p className="text-gray-400 text-sm">Processamento de PDFs</p>
+                            </div>
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">🔍 RAG</h3>
+                                <p className="text-gray-400 text-sm">Busca semântica</p>
+                            </div>
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">🕷️ Web Scraping</h3>
+                                <p className="text-gray-400 text-sm">Coleta de dados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente Oráculo RAG
+        function OraculoRagAgent() {
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <div className="mb-8">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <span className="text-3xl">🔮</span>
+                            <div>
+                                <h1 className="text-3xl font-bold">Oráculo RAG</h1>
+                                <p className="text-gray-300">Sistema RAG avançado com multitask processing</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                        <h2 className="text-xl font-semibold mb-6">Consultas Inteligentes</h2>
+                        <div className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Digite sua pergunta..."
+                                className="w-full p-4 bg-navy-dark border border-navy-light rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-neon"
+                            />
+                            <button className="px-6 py-3 bg-green-neon hover:bg-green-neon/80 rounded-lg font-medium transition-colors">
+                                Consultar
+                            </button>
+                        </div>
+                        
+                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">🧠 Multitask</h3>
+                                <p className="text-gray-400 text-sm">Processamento paralelo</p>
+                            </div>
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">⚡ Real-time</h3>
+                                <p className="text-gray-400 text-sm">Análise em tempo real</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Componente Origin Story Book
+        function OriginStoryBookAgent() {
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <div className="mb-8">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <span className="text-3xl">📖</span>
+                            <div>
+                                <h1 className="text-3xl font-bold">Origin Story Book</h1>
+                                <p className="text-gray-300">Gerador de histórias de origem com IA</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-navy-medium rounded-xl p-8 border border-navy-light">
+                        <h2 className="text-xl font-semibold mb-6">Criar Nova História</h2>
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Gênero</label>
+                                <select className="w-full p-3 bg-navy-dark border border-navy-light rounded-lg text-white focus:outline-none focus:border-orange-neon">
+                                    <option>Fantasia</option>
+                                    <option>Ficção Científica</option>
+                                    <option>Romance</option>
+                                    <option>Mistério</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Tema Principal</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: Jornada do herói, Redenção, Amor..."
+                                    className="w-full p-3 bg-navy-dark border border-navy-light rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-neon"
+                                />
+                            </div>
+                            <button className="px-6 py-3 bg-orange-neon hover:bg-orange-neon/80 rounded-lg font-medium transition-colors">
+                                Gerar História
+                            </button>
+                        </div>
+                        
+                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">📖 Narrativa</h3>
+                                <p className="text-gray-400 text-sm">Estrutura de história</p>
+                            </div>
+                            <div className="bg-navy-dark rounded-lg p-6">
+                                <h3 className="font-semibold mb-2">🎨 Visualização</h3>
+                                <p className="text-gray-400 text-sm">Ilustrações automáticas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Renderizar o portal
+        ReactDOM.render(<AgentsPortal />, document.getElementById('root'));
+    </script>
+</body>
+</html>

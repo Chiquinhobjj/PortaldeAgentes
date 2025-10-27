@@ -1,0 +1,30 @@
+OPENAI_API_KEY=your_openai_api_key_here
+AI_PROVIDER=openai
+MODEL_NAME=gpt-4o-mini
+MAX_TOKENS=3000
+TEMPERATURE=0.3
+
+# Embedding Settings
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+EMBEDDING_DIMENSION=384
+
+# Vector Search Settings
+SIMILARITY_THRESHOLD=0.7
+TOP_K_RESULTS=5
+INDEX_TYPE=faiss
+
+# RAG Settings
+CONTEXT_WINDOW=2000
+MAX_SOURCES=5
+RERANK_RESULTS=true
+
+# Multi-task Processing
+MAX_CONCURRENT_TASKS=10
+TASK_TIMEOUT=30
+
+# Database Settings
+VECTOR_DB_PATH=./vector_db
+DOCUMENT_DB_PATH=./documents.db
+
+# CORS Settings
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:3001

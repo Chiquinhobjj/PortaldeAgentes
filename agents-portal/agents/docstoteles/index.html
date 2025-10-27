@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docstoteles AI - Assistente de Documentação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0a0e1a',
+                        'navy-medium': '#1a1f35',
+                        'navy-light': '#2a2f45',
+                        'cyan-neon': '#00d4ff',
+                        'blue-neon': '#0066ff',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-white min-h-screen">
+    <div class="container mx-auto px-6 py-12">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 mb-6 mx-auto flex items-center justify-center">
+                <span class="text-white font-bold text-2xl">D</span>
+            </div>
+            <h1 class="text-4xl font-bold mb-4">Docstoteles AI</h1>
+            <p class="text-gray-300 text-lg max-w-2xl mx-auto">
+                Assistente de documentação inteligente com RAG e web scraping avançado
+            </p>
+        </div>
+
+        <!-- Status Card -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8 max-w-md mx-auto">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold">Status do Sistema</h3>
+                    <p class="text-gray-300">Em Desenvolvimento</p>
+                </div>
+                <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+            </div>
+        </div>
+
+        <!-- Features Preview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div class="bg-gray-800 rounded-lg p-6">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 mb-4 flex items-center justify-center">
+                    <span class="text-white font-bold">📄</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Processamento de Documentos</h3>
+                <p class="text-gray-300 text-sm">Análise inteligente de PDFs, DOCX e outros formatos</p>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-green-500 to-teal-500 mb-4 flex items-center justify-center">
+                    <span class="text-white font-bold">🔍</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">RAG Avançado</h3>
+                <p class="text-gray-300 text-sm">Sistema de recuperação e geração com contexto</p>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 mb-4 flex items-center justify-center">
+                    <span class="text-white font-bold">🕷️</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Web Scraping</h3>
+                <p class="text-gray-300 text-sm">Coleta inteligente de dados da web</p>
+            </div>
+        </div>
+
+        <!-- Coming Soon -->
+        <div class="text-center">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-8 max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-4">🚀 Em Breve</h2>
+                <p class="text-gray-200 mb-6">
+                    O Docstoteles AI está sendo desenvolvido com as mais avançadas tecnologias de IA para revolucionar o processamento de documentação.
+                </p>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">OpenAI GPT-4</span>
+                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Vector Database</span>
+                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">Web Scraping</span>
+                    <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm">PDF Processing</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Portal -->
+        <div class="text-center mt-8">
+            <a href="http://localhost:5173" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                ← Voltar ao Portal
+            </a>
+        </div>
+    </div>
+</body>
+</html>

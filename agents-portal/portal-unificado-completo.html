@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Portal - Portal Unificado de IA</title>
+    <meta name="description" content="Portal unificado de agentes de IA - como Tess AI, Adapta e Lendário">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy-dark': '#0a0e1a',
+                        'navy-medium': '#1a1f35',
+                        'navy-light': '#2a2f45',
+                        'cyan-neon': '#00d4ff',
+                        'blue-neon': '#0066ff',
+                        'purple-neon': '#8b5cf6',
+                        'green-neon': '#10b981',
+                        'orange-neon': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-navy-dark text-white min-h-screen">
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Componente principal do portal
+        function AgentsPortal() {
+            const [activeAgent, setActiveAgent] = useState('dashboard');
+            const [agents, setAgents] = useState([
+                {
+                    id: 'contexto-midias',
+                    name: 'Contexto → Mídias',
+                    description: 'Transforme contexto em roteiros e apresentações profissionais',
+                    icon: '🎬',
+                    color: 'from-blue-500 to-cyan-500',
+                    category: 'Mídia & Conteúdo',
+                    status: 'online'
+                },
+                {
+                    id: 'docstoteles',
+                    name: 'Docstoteles AI',
+                    description: 'Assistente de documentação com RAG e web scraping',
+                    icon: '📄',
+                    color: 'from-purple-500 to-pink-500',
+                    category: 'Documentação & RAG',
+                    status: 'online'
+                },
+                {
+                    id: 'oraculo-rag',
+                    name: 'Oráculo RAG',
+                    description: 'Sistema RAG avançado com multitask processing',
+                    icon: '🔮',
+                    color: 'from-green-500 to-teal-500',
+                    category: 'Documentação & RAG',
+                    status: 'online'
+                },
+                {
+                    id: 'origin-story-book',
+                    name: 'Origin Story Book',
+                    description: 'Gerador de histórias de origem com IA',
+                    icon: '📖',
+                    color: 'from-amber-500 to-orange-500',
+                    category: 'Mídia & Conteúdo',
+                    status: 'online'
+                }
+            ]);
+
+            const renderAgentContent = () => {
+                switch(activeAgent) {
+                    case 'contexto-midias':
+                        return <ContextoMidiasAgent />;
+                    case 'docstoteles':
+                        return <DocstotelesAgent />;
+                    case 'oraculo-rag':
+                        return <OraculoRagAgent />;
+                    case 'origin-story-book':
+                        return <OriginStoryBookAgent />;
+                    default:
+                        return <Dashboard />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-navy-dark">
+                    <header className="bg-navy-medium border-b border-navy-light">
+                        <div className="max-w-7xl mx-auto px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-neon to-blue-neon bg-clip-text text-transparent">
+                                        Agents Portal
+                                    </h1>
+                                    <span className="px-3 py-1 bg-green-neon/20 text-green-neon rounded-full text-sm font-medium">
+                                        Online
+                                    </span>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <button className="px-4 py-2 bg-navy-light hover:bg-navy-light/80 rounded-lg transition-colors">
+                                        Configurações
+                                    </button>
+                                    <div className="w-8 h-8 bg-gradient-to-r from-purple-neon to-pink-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="flex">
+                        <aside className="w-80 bg-navy-medium border-r border-navy-light min-h-screen">
+                            <div className="p-6">
+                                <h2 className="text-lg font-semibold mb-6 text-gray-300">Agentes Disponíveis</h2>
+                                
+                                <button
+                                    onClick={() => setActiveAgent('dashboard')}
+                                    className={`w-full flex items-center space-x-3 p-3 rounded-lg mb-2 transition-colors ${
+                                        activeAgent === 'dashboard' 
+                                            ? 'bg-blue-neon/20 text-blue-neon border border-blue-neon/30' 
+                                            : 'hover:bg-navy-light/50'
+                                    }`}
+                                >
+                                    <span className="text-xl">🏠</span>
+                                    <div className="text-left">
+                                        <div className="font-medium">Dashboard</div>
+                                        <div className="text-sm text-gray-400">Visão geral</div>
+                                    </div>
+                                </button>
+
+                                {agents.map(agent => (
+                                    <button
+                                        key={agent.id}
+                                        onClick={() => setActiveAgent(agent.id)}
+                                        className={`w-full flex items-center space-x-3 p-3 rounded-lg mb-2 transition-colors ${
+                                            activeAgent === agent.id 
+                                                ? 'bg-blue-neon/20 text-blue-neon border border-blue-neon/30' 
+                                                : 'hover:bg-navy-light/50'
+                                        }`}
+                                    >
+                                        <span className="text-xl">{agent.icon}</span>
+                                        <div className="text-left flex-1">
+                                            <div className="font-medium">{agent.name}</div>
+                                            <div className="text-sm text-gray-400">{agent.description}</div>
+                                            <div className="flex items-center space-x-2 mt-1">
+                                                <span className={`w-2 h-2 rounded-full ${
+                                                    agent.status === 'online' ? 'bg-green-neon' : 'bg-gray-500'
+                                                }`}></span>
+                                                <span className="text-xs text-gray-500">{agent.category}</span>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </aside>
+
+                        <main className="flex-1 p-6">
+                            {renderAgentContent()}
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        // Dashboard Component
+        function Dashboard() {
+            return (
+                <div className="max-w-6xl mx-auto">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-neon to-blue-neon bg-clip-text text-transparent mb-4">
+                            🏠 Dashboard
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Portal unificado de agentes de IA - como Tess AI, Adapta e Lendário
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="text-3xl font-bold text-blue-neon mb-2">4</div>
+                            <div className="text-gray-300">Agentes Ativos</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="text-3xl font-bold text-green-neon mb-2">100%</div>
+                            <div className="text-gray-300">Sistema Online</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="text-3xl font-bold text-purple-neon mb-2">2</div>
+                            <div className="text-gray-300">Categorias</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                            <div className="text-3xl font-bold text-orange-neon mb-2">24/7</div>
+                            <div className="text-gray-300">Disponibilidade</div>
+                        </div>
+                    </div>
+
+                    <div className="bg-navy-medium rounded-xl p-6 border border-navy-light">
+                        <h2 className="text-2xl font-semibold mb-6">Agentes Disponíveis</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                <div className="flex items-center space-x-4 mb-4">
+                                    <span className="text-3xl">🎬</span>
+                                    <div>
+                                        <h3 className="text-xl font-semibold">Contexto → Mídias</h3>
+                                        <p className="text-gray-400">Transforme contexto em roteiros e apresentações</p>
+                                    </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <span className="text-xs bg-blue-neon/20 text-blue-neon px-2 py-1 rounded">Mídia</span>
+                                    <span className="text-xs bg-green-neon/20 text-green-neon px-2 py-1 rounded">Online</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                <div className="flex items-center space-x-4 mb-4">
+                                    <span className="text-3xl">📄</span>
+                                    <div>
+                                        <h3 className="text-xl font-semibold">Docstoteles AI</h3>
+                                        <p className="text-gray-400">Assistente de documentação com RAG</p>
+                                    </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <span className="text-xs bg-purple-neon/20 text-purple-neon px-2 py-1 rounded">RAG</span>
+                                    <span className="text-xs bg-green-neon/20 text-green-neon px-2 py-1 rounded">Online</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                <div className="flex items-center space-x-4 mb-4">
+                                    <span className="text-3xl">🔮</span>
+                                    <div>
+                                        <h3 className="text-xl font-semibold">Oráculo RAG</h3>
+                                        <p className="text-gray-400">Sistema RAG avançado com multitask</p>
+                                    </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <span className="text-xs bg-green-neon/20 text-green-neon px-2 py-1 rounded">RAG</span>
+                                    <span className="text-xs bg-green-neon/20 text-green-neon px-2 py-1 rounded">Online</span>
+                                </div>
+                            </div>
+
+                            <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                <div className="flex items-center space-x-4 mb-4">
+                                    <span className="text-3xl">📖</span>
+                                    <div>
+                                        <h3 className="text-xl font-semibold">Origin Story Book</h3>
+                                        <p className="text-gray-400">Gerador de histórias com OpenAI Agents</p>
+                                    </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <span className="text-xs bg-orange-neon/20 text-orange-neon px-2 py-1 rounded">IA</span>
+                                    <span className="text-xs bg-green-neon/20 text-green-neon px-2 py-1 rounded">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ContextoMidiasAgent Component
+        function ContextoMidiasAgent() {
+            const [currentStep, setCurrentStep] = useState(1);
+            const [isGenerating, setIsGenerating] = useState(false);
+
+            const steps = [
+                { number: 1, title: "Entrada do Contexto", description: "Escolha como inserir seu conteúdo" },
+                { number: 2, title: "Configurar Saída", description: "Defina o formato desejado" },
+                { number: 3, title: "Gerar Conteúdo", description: "Processamento com IA" },
+                { number: 4, title: "Visualizar Resultado", description: "Veja o resultado final" }
+            ];
+
+            const handleGenerate = async () => {
+                setIsGenerating(true);
+                // Simulate generation
+                setTimeout(() => {
+                    setIsGenerating(false);
+                    setCurrentStep(4);
+                }, 3000);
+            };
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-4">
+                            🎬 Contexto → Mídias
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Transforme contexto em roteiros e apresentações profissionais
+                        </p>
+                    </div>
+
+                    {/* Progress Steps */}
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between">
+                            {steps.map((step, index) => (
+                                <div key={step.number} className="flex items-center">
+                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                                        currentStep >= step.number 
+                                            ? 'bg-blue-neon border-blue-neon text-white' 
+                                            : 'border-gray-600 text-gray-400'
+                                    }`}>
+                                        {step.number}
+                                    </div>
+                                    <div className="ml-3">
+                                        <div className={`text-sm font-medium ${
+                                            currentStep >= step.number ? 'text-blue-neon' : 'text-gray-400'
+                                        }`}>
+                                            {step.title}
+                                        </div>
+                                        <div className="text-xs text-gray-500">{step.description}</div>
+                                    </div>
+                                    {index < steps.length - 1 && (
+                                        <div className={`flex-1 h-0.5 mx-4 ${
+                                            currentStep > step.number ? 'bg-blue-neon' : 'bg-gray-600'
+                                        }`}></div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Step Content */}
+                    <div className="bg-navy-medium rounded-xl p-8">
+                        {currentStep === 1 && (
+                            <div>
+                                <h2 className="text-2xl font-semibold mb-6">Escolha a Entrada do Contexto</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-navy-dark rounded-lg p-6 border border-navy-light cursor-pointer hover:border-blue-neon transition-colors">
+                                        <div className="text-4xl mb-4">📝</div>
+                                        <h3 className="text-xl font-semibold mb-2">Texto Direto</h3>
+                                        <p className="text-gray-400">Digite ou cole seu conteúdo diretamente</p>
+                                    </div>
+                                    <div className="bg-navy-dark rounded-lg p-6 border border-navy-light cursor-pointer hover:border-blue-neon transition-colors">
+                                        <div className="text-4xl mb-4">📄</div>
+                                        <h3 className="text-xl font-semibold mb-2">Upload de Arquivo</h3>
+                                        <p className="text-gray-400">Faça upload de PDF, DOC, TXT, etc.</p>
+                                    </div>
+                                </div>
+                                <div className="mt-6 text-center">
+                                    <button 
+                                        onClick={() => setCurrentStep(2)}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg hover:from-blue-500/80 hover:to-cyan-500/80"
+                                    >
+                                        Continuar
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentStep === 2 && (
+                            <div>
+                                <h2 className="text-2xl font-semibold mb-6">Configure a Saída</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                        <div className="text-4xl mb-4">🎬</div>
+                                        <h3 className="text-xl font-semibold mb-2">Roteiro</h3>
+                                        <p className="text-gray-400">Formato profissional para vídeos</p>
+                                    </div>
+                                    <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                        <div className="text-4xl mb-4">📊</div>
+                                        <h3 className="text-xl font-semibold mb-2">Apresentação</h3>
+                                        <p className="text-gray-400">Slides estruturados</p>
+                                    </div>
+                                    <div className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                        <div className="text-4xl mb-4">📝</div>
+                                        <h3 className="text-xl font-semibold mb-2">Artigo</h3>
+                                        <p className="text-gray-400">Texto formatado</p>
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-between">
+                                    <button 
+                                        onClick={() => setCurrentStep(1)}
+                                        className="px-6 py-3 bg-navy-light hover:bg-navy-light/80 rounded-lg"
+                                    >
+                                        Voltar
+                                    </button>
+                                    <button 
+                                        onClick={() => setCurrentStep(3)}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg hover:from-blue-500/80 hover:to-cyan-500/80"
+                                    >
+                                        Continuar
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentStep === 3 && (
+                            <div className="text-center">
+                                <h2 className="text-2xl font-semibold mb-6">Gerando Conteúdo</h2>
+                                <div className="mb-6">
+                                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-blue-neon"></div>
+                                </div>
+                                <p className="text-gray-400 mb-6">Processando com IA...</p>
+                                <button 
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating}
+                                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg hover:from-blue-500/80 hover:to-cyan-500/80 disabled:opacity-50"
+                                >
+                                    {isGenerating ? 'Gerando...' : 'Iniciar Geração'}
+                                </button>
+                            </div>
+                        )}
+
+                        {currentStep === 4 && (
+                            <div>
+                                <h2 className="text-2xl font-semibold mb-6">Resultado Gerado</h2>
+                                <div className="bg-navy-dark rounded-lg p-6 border border-navy-light mb-6">
+                                    <h3 className="text-xl font-semibold mb-4">Roteiro Gerado</h3>
+                                    <div className="prose prose-invert max-w-none">
+                                        <p className="text-gray-300">
+                                            Aqui estaria o conteúdo gerado pela IA baseado no contexto fornecido.
+                                            O resultado seria formatado conforme o tipo escolhido (roteiro, apresentação, artigo).
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-between">
+                                    <button 
+                                        onClick={() => setCurrentStep(1)}
+                                        className="px-6 py-3 bg-navy-light hover:bg-navy-light/80 rounded-lg"
+                                    >
+                                        Nova Geração
+                                    </button>
+                                    <button className="px-6 py-3 bg-gradient-to-r from-green-neon to-teal-500 rounded-lg hover:from-green-neon/80 hover:to-teal-500/80">
+                                        📥 Baixar Resultado
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // DocstotelesAgent Component
+        function DocstotelesAgent() {
+            const [activeTab, setActiveTab] = useState('upload');
+            const [documents, setDocuments] = useState([]);
+            const [query, setQuery] = useState('');
+            const [answer, setAnswer] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [webUrl, setWebUrl] = useState('');
+
+            const uploadDocument = async (file) => {
+                setLoading(true);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const response = await fetch('http://localhost:8501/documents/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadDocuments();
+                        alert('Documento carregado com sucesso!');
+                    } else {
+                        alert('Erro ao carregar documento: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao carregar documento: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const scrapeWebContent = async () => {
+                if (!webUrl) return;
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8501/documents/scrape', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: webUrl })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadDocuments();
+                        setWebUrl('');
+                        alert('Conteúdo web extraído com sucesso!');
+                    } else {
+                        alert('Erro ao extrair conteúdo: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao extrair conteúdo: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const queryDocuments = async () => {
+                if (!query.trim()) return;
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8501/query', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        setAnswer(result.answer);
+                    } else {
+                        alert('Erro ao consultar documentos: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao consultar documentos: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const loadDocuments = async () => {
+                try {
+                    const response = await fetch('http://localhost:8501/documents');
+                    const result = await response.json();
+                    setDocuments(result.documents || []);
+                } catch (error) {
+                    console.error('Erro ao carregar documentos:', error);
+                }
+            };
+
+            useEffect(() => {
+                loadDocuments();
+            }, []);
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-neon to-pink-500 bg-clip-text text-transparent mb-4">
+                            📄 Docstoteles AI Assistant
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Assistente de documentação com RAG e web scraping avançado
+                        </p>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-4 mb-6">
+                        <button
+                            onClick={() => setActiveTab('upload')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'upload' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📁 Upload Documentos
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('scrape')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'scrape' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            🌐 Web Scraping
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('query')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'query' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            🔍 Consultar Base
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('documents')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'documents' 
+                                    ? 'bg-purple-neon/20 text-purple-neon border border-purple-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📚 Documentos
+                        </button>
+                    </div>
+
+                    {/* Upload Tab */}
+                    {activeTab === 'upload' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Upload de Documentos</h2>
+                            <div className="border-2 border-dashed border-navy-light rounded-lg p-8 text-center">
+                                <input
+                                    type="file"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) uploadDocument(file);
+                                    }}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label
+                                    htmlFor="file-upload"
+                                    className="cursor-pointer flex flex-col items-center"
+                                >
+                                    <span className="text-6xl mb-4">📄</span>
+                                    <span className="text-xl mb-2">Clique para fazer upload</span>
+                                    <span className="text-gray-400">ou arraste o arquivo aqui</span>
+                                </label>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Web Scraping Tab */}
+                    {activeTab === 'scrape' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Web Scraping</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">URL para extrair:</label>
+                                    <input
+                                        type="url"
+                                        value={webUrl}
+                                        onChange={(e) => setWebUrl(e.target.value)}
+                                        placeholder="https://example.com"
+                                        className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-purple-neon focus:ring-1 focus:ring-purple-neon/50"
+                                    />
+                                </div>
+                                <button
+                                    onClick={scrapeWebContent}
+                                    disabled={loading || !webUrl}
+                                    className="px-6 py-3 bg-gradient-to-r from-purple-neon to-pink-500 rounded-lg hover:from-purple-neon/80 hover:to-pink-500/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Extraindo...' : '🌐 Extrair Conteúdo'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Query Tab */}
+                    {activeTab === 'query' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Consultar Base de Conhecimento</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Sua pergunta:</label>
+                                    <textarea
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="Digite sua pergunta aqui..."
+                                        rows={4}
+                                        className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-purple-neon focus:ring-1 focus:ring-purple-neon/50"
+                                    />
+                                </div>
+                                <button
+                                    onClick={queryDocuments}
+                                    disabled={loading || !query.trim()}
+                                    className="px-6 py-3 bg-gradient-to-r from-purple-neon to-pink-500 rounded-lg hover:from-purple-neon/80 hover:to-pink-500/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Consultando...' : '🔍 Consultar'}
+                                </button>
+                                
+                                {answer && (
+                                    <div className="mt-6 p-4 bg-green-neon/10 border border-green-neon/30 rounded-lg">
+                                        <h3 className="font-semibold text-green-neon mb-2">Resposta:</h3>
+                                        <p className="text-gray-200 whitespace-pre-wrap">{answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Documents Tab */}
+                    {activeTab === 'documents' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Documentos na Base ({documents.length})</h2>
+                            <div className="space-y-4">
+                                {documents.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-400">
+                                        <span className="text-6xl block mb-4">📚</span>
+                                        <p>Nenhum documento encontrado</p>
+                                        <p className="text-sm">Faça upload de documentos ou extraia conteúdo web</p>
+                                    </div>
+                                ) : (
+                                    documents.map((doc) => (
+                                        <div key={doc.id} className="bg-navy-dark rounded-lg p-4 border border-navy-light">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h3 className="font-semibold text-lg">{doc.title}</h3>
+                                                    <p className="text-sm text-gray-400 mt-1">
+                                                        {doc.source_type} • {new Date(doc.created_at).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                    {doc.url && (
+                                                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-purple-neon text-sm hover:underline">
+                                                            {doc.url}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                                <span className="text-xs bg-purple-neon/20 text-purple-neon px-2 py-1 rounded">
+                                                    {doc.content.length} chars
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-300 mt-2 text-sm line-clamp-2">
+                                                {doc.content.substring(0, 200)}...
+                                            </p>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // OraculoRagAgent Component
+        function OraculoRagAgent() {
+            const [activeTab, setActiveTab] = useState('upload');
+            const [documents, setDocuments] = useState([]);
+            const [query, setQuery] = useState('');
+            const [answer, setAnswer] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [stats, setStats] = useState({});
+
+            const uploadDocument = async (file) => {
+                setLoading(true);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const response = await fetch('http://localhost:8000/documents/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadDocuments();
+                        loadStats();
+                        alert('Documento processado e indexado com sucesso!');
+                    } else {
+                        alert('Erro ao processar documento: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao processar documento: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const queryDocuments = async () => {
+                if (!query.trim()) return;
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8000/query', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            query,
+                            top_k: 5,
+                            similarity_threshold: 0.7
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        setAnswer(result.answer);
+                    } else {
+                        alert('Erro ao consultar documentos: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao consultar documentos: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const loadDocuments = async () => {
+                try {
+                    const response = await fetch('http://localhost:8000/documents');
+                    const result = await response.json();
+                    setDocuments(result.documents || []);
+                } catch (error) {
+                    console.error('Erro ao carregar documentos:', error);
+                }
+            };
+
+            const loadStats = async () => {
+                try {
+                    const response = await fetch('http://localhost:8000/stats');
+                    const result = await response.json();
+                    setStats(result);
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas:', error);
+                }
+            };
+
+            useEffect(() => {
+                loadDocuments();
+                loadStats();
+            }, []);
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-green-neon to-teal-500 bg-clip-text text-transparent mb-4">
+                            🔮 Oráculo RAG
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Sistema RAG avançado com busca semântica vetorial e processamento multitarefa
+                        </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-green-neon">{stats.total_documents || 0}</div>
+                            <div className="text-sm text-gray-400">Documentos</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-blue-neon">{stats.indexed_documents || 0}</div>
+                            <div className="text-sm text-gray-400">Indexados</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-purple-neon">{stats.embedding_dimension || 0}</div>
+                            <div className="text-sm text-gray-400">Dimensões</div>
+                        </div>
+                        <div className="bg-navy-medium rounded-lg p-4 border border-navy-light">
+                            <div className="text-2xl font-bold text-orange-neon">
+                                {stats.embedding_model_loaded ? '✅' : '❌'}
+                            </div>
+                            <div className="text-sm text-gray-400">Modelo</div>
+                        </div>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-4 mb-6">
+                        <button
+                            onClick={() => setActiveTab('upload')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'upload' 
+                                    ? 'bg-green-neon/20 text-green-neon border border-green-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📁 Upload
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('query')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'query' 
+                                    ? 'bg-green-neon/20 text-green-neon border border-green-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            🔍 Consulta Semântica
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('documents')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'documents' 
+                                    ? 'bg-green-neon/20 text-green-neon border border-green-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📚 Base de Conhecimento
+                        </button>
+                    </div>
+
+                    {/* Upload Tab */}
+                    {activeTab === 'upload' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Upload com Embeddings</h2>
+                            <div className="border-2 border-dashed border-navy-light rounded-lg p-8 text-center">
+                                <input
+                                    type="file"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) uploadDocument(file);
+                                    }}
+                                    className="hidden"
+                                    id="file-upload"
+                                />
+                                <label
+                                    htmlFor="file-upload"
+                                    className="cursor-pointer flex flex-col items-center"
+                                >
+                                    <span className="text-6xl mb-4">🧠</span>
+                                    <span className="text-xl mb-2">Upload com Processamento IA</span>
+                                    <span className="text-gray-400">Documentos serão indexados semanticamente</span>
+                                </label>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Query Tab */}
+                    {activeTab === 'query' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Consulta Semântica Avançada</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Consulta semântica:</label>
+                                    <textarea
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="Digite sua pergunta para busca semântica..."
+                                        rows={4}
+                                        className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-green-neon focus:ring-1 focus:ring-green-neon/50"
+                                    />
+                                </div>
+                                <button
+                                    onClick={queryDocuments}
+                                    disabled={loading || !query.trim()}
+                                    className="px-6 py-3 bg-gradient-to-r from-green-neon to-teal-500 rounded-lg hover:from-green-neon/80 hover:to-teal-500/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'Processando...' : '🔍 Busca Semântica'}
+                                </button>
+                                
+                                {answer && (
+                                    <div className="mt-6 p-4 bg-green-neon/10 border border-green-neon/30 rounded-lg">
+                                        <h3 className="font-semibold text-green-neon mb-2">Resposta Semântica:</h3>
+                                        <p className="text-gray-200 whitespace-pre-wrap">{answer}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Documents Tab */}
+                    {activeTab === 'documents' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-4">Base de Conhecimento ({documents.length})</h2>
+                            <div className="space-y-4">
+                                {documents.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-400">
+                                        <span className="text-6xl block mb-4">🧠</span>
+                                        <p>Base de conhecimento vazia</p>
+                                        <p className="text-sm">Faça upload de documentos para criar embeddings</p>
+                                    </div>
+                                ) : (
+                                    documents.map((doc) => (
+                                        <div key={doc.id} className="bg-navy-dark rounded-lg p-4 border border-navy-light">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h3 className="font-semibold text-lg">{doc.title}</h3>
+                                                    <p className="text-sm text-gray-400 mt-1">
+                                                        {new Date(doc.created_at).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <span className={`text-xs px-2 py-1 rounded ${
+                                                        doc.has_embedding 
+                                                            ? 'bg-green-neon/20 text-green-neon' 
+                                                            : 'bg-gray-500/20 text-gray-400'
+                                                    }`}>
+                                                        {doc.has_embedding ? 'Indexado' : 'Pendente'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 text-sm text-gray-300">
+                                                <strong>Metadados:</strong> {JSON.stringify(doc.metadata, null, 2)}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // OriginStoryBookAgent Component
+        function OriginStoryBookAgent() {
+            const [activeTab, setActiveTab] = useState('generate');
+            const [stories, setStories] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [storyTypes, setStoryTypes] = useState([]);
+            
+            // Form state
+            const [formData, setFormData] = useState({
+                character_name: '',
+                character_description: '',
+                world_setting: '',
+                story_type: 'hero',
+                tone: 'epic',
+                length: 'medium',
+                additional_details: ''
+            });
+
+            const generateStory = async () => {
+                if (!formData.character_name || !formData.character_description || !formData.world_setting) {
+                    alert('Preencha pelo menos nome, descrição do personagem e mundo');
+                    return;
+                }
+                
+                setLoading(true);
+                try {
+                    const response = await fetch('http://localhost:3001/stories/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok) {
+                        loadStories();
+                        alert('História gerada com sucesso!');
+                        // Reset form
+                        setFormData({
+                            character_name: '',
+                            character_description: '',
+                            world_setting: '',
+                            story_type: 'hero',
+                            tone: 'epic',
+                            length: 'medium',
+                            additional_details: ''
+                        });
+                    } else {
+                        alert('Erro ao gerar história: ' + result.detail);
+                    }
+                } catch (error) {
+                    alert('Erro ao gerar história: ' + error.message);
+                }
+                setLoading(false);
+            };
+
+            const loadStories = async () => {
+                try {
+                    const response = await fetch('http://localhost:3001/stories');
+                    const result = await response.json();
+                    setStories(result.stories || []);
+                } catch (error) {
+                    console.error('Erro ao carregar histórias:', error);
+                }
+            };
+
+            const loadStoryTypes = async () => {
+                try {
+                    const response = await fetch('http://localhost:3001/story-types');
+                    const result = await response.json();
+                    setStoryTypes(result);
+                } catch (error) {
+                    console.error('Erro ao carregar tipos de história:', error);
+                }
+            };
+
+            useEffect(() => {
+                loadStories();
+                loadStoryTypes();
+            }, []);
+
+            return (
+                <div className="max-w-6xl mx-auto p-6">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent mb-4">
+                            📖 Origin Story Book
+                        </h1>
+                        <p className="text-gray-300 text-lg">
+                            Gerador de histórias de origem com IA usando OpenAI Agents SDK
+                        </p>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-4 mb-6">
+                        <button
+                            onClick={() => setActiveTab('generate')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'generate' 
+                                    ? 'bg-orange-neon/20 text-orange-neon border border-orange-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            ✨ Gerar História
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('stories')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${
+                                activeTab === 'stories' 
+                                    ? 'bg-orange-neon/20 text-orange-neon border border-orange-neon/30' 
+                                    : 'bg-navy-light hover:bg-navy-light/80'
+                            }`}
+                        >
+                            📚 Minhas Histórias
+                        </button>
+                    </div>
+
+                    {/* Generate Tab */}
+                    {activeTab === 'generate' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-6">Criar Nova História de Origem</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Character Info */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-orange-neon">👤 Personagem</h3>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Nome do Personagem:</label>
+                                        <input
+                                            type="text"
+                                            value={formData.character_name}
+                                            onChange={(e) => setFormData({...formData, character_name: e.target.value})}
+                                            placeholder="Ex: Aria, Marcus, Luna..."
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Descrição do Personagem:</label>
+                                        <textarea
+                                            value={formData.character_description}
+                                            onChange={(e) => setFormData({...formData, character_description: e.target.value})}
+                                            placeholder="Descreva o personagem, sua personalidade, habilidades..."
+                                            rows={3}
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* World & Settings */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-orange-neon">🌍 Mundo e Configurações</h3>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Mundo/Cenário:</label>
+                                        <textarea
+                                            value={formData.world_setting}
+                                            onChange={(e) => setFormData({...formData, world_setting: e.target.value})}
+                                            placeholder="Descreva o mundo onde a história se passa..."
+                                            rows={3}
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Tipo de História:</label>
+                                            <select
+                                                value={formData.story_type}
+                                                onChange={(e) => setFormData({...formData, story_type: e.target.value})}
+                                                className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                            >
+                                                <option value="hero">Herói</option>
+                                                <option value="villain">Vilão</option>
+                                                <option value="antihero">Anti-herói</option>
+                                                <option value="mentor">Mentor</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Tom:</label>
+                                            <select
+                                                value={formData.tone}
+                                                onChange={(e) => setFormData({...formData, tone: e.target.value})}
+                                                className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                            >
+                                                <option value="epic">Épico</option>
+                                                <option value="dark">Sombrio</option>
+                                                <option value="comedic">Cômico</option>
+                                                <option value="mysterious">Misterioso</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Tamanho:</label>
+                                        <select
+                                            value={formData.length}
+                                            onChange={(e) => setFormData({...formData, length: e.target.value})}
+                                            className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                        >
+                                            <option value="short">Curto (1-2 páginas)</option>
+                                            <option value="medium">Médio (3-5 páginas)</option>
+                                            <option value="long">Longo (6+ páginas)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Additional Details */}
+                            <div className="mt-6">
+                                <label className="block text-sm font-medium mb-2">Detalhes Adicionais (opcional):</label>
+                                <textarea
+                                    value={formData.additional_details}
+                                    onChange={(e) => setFormData({...formData, additional_details: e.target.value})}
+                                    placeholder="Qualquer informação adicional que queira incluir na história..."
+                                    rows={3}
+                                    className="w-full px-4 py-3 bg-navy-dark border border-navy-light rounded-lg focus:border-orange-neon focus:ring-1 focus:ring-orange-neon/50"
+                                />
+                            </div>
+
+                            {/* Generate Button */}
+                            <div className="mt-6 text-center">
+                                <button
+                                    onClick={generateStory}
+                                    disabled={loading}
+                                    className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg hover:from-amber-500/80 hover:to-orange-500/80 disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold"
+                                >
+                                    {loading ? '✨ Gerando História...' : '📖 Gerar História de Origem'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Stories Tab */}
+                    {activeTab === 'stories' && (
+                        <div className="bg-navy-medium rounded-xl p-6">
+                            <h2 className="text-2xl font-semibold mb-6">Minhas Histórias ({stories.length})</h2>
+                            
+                            {stories.length === 0 ? (
+                                <div className="text-center py-12 text-gray-400">
+                                    <span className="text-6xl block mb-4">📖</span>
+                                    <p className="text-xl mb-2">Nenhuma história criada ainda</p>
+                                    <p className="text-sm">Use a aba "Gerar História" para criar sua primeira história de origem</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {stories.map((story) => (
+                                        <div key={story.story_id} className="bg-navy-dark rounded-lg p-6 border border-navy-light">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-xl font-semibold">{story.title}</h3>
+                                                    <p className="text-sm text-gray-400 mt-1">
+                                                        {story.character_name} • {story.story_type} • {story.tone}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {new Date(story.created_at).toLocaleDateString('pt-BR')}
+                                                    </p>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <span className="text-xs bg-orange-neon/20 text-orange-neon px-2 py-1 rounded">
+                                                        {story.length}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="mb-4">
+                                                <h4 className="font-semibold text-orange-neon mb-2">Temas:</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {story.themes.map((theme, index) => (
+                                                        <span key={index} className="text-xs bg-navy-light text-gray-300 px-2 py-1 rounded">
+                                                            {theme}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex space-x-4">
+                                                <button className="px-4 py-2 bg-orange-neon/20 text-orange-neon rounded-lg hover:bg-orange-neon/30 transition-colors">
+                                                    📖 Ler História
+                                                </button>
+                                                <button className="px-4 py-2 bg-blue-neon/20 text-blue-neon rounded-lg hover:bg-blue-neon/30 transition-colors">
+                                                    📊 Analisar
+                                                </button>
+                                                <button className="px-4 py-2 bg-green-neon/20 text-green-neon rounded-lg hover:bg-green-neon/30 transition-colors">
+                                                    📥 Exportar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<AgentsPortal />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+OPENAI_API_KEY=your_openai_api_key_here
+AI_PROVIDER=openai
+MODEL_NAME=gpt-4o-mini
+MAX_TOKENS=2000
+TEMPERATURE=0.7
+
+# Web Scraping Settings
+SCRAPING_TIMEOUT=10
+MAX_CONTENT_LENGTH=5000
+
+# RAG Settings
+VECTOR_DIMENSION=1536
+SIMILARITY_THRESHOLD=0.7
+MAX_SOURCES=5
+
+# Database Settings (for future use)
+DATABASE_URL=sqlite:///docstoteles.db
+
+# CORS Settings
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:3001
